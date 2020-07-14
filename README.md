@@ -23,7 +23,7 @@ Lingzhu technology shouldered the social responsibility that enterprises should 
 ## SHENZHEN CREATIONBEST INTELLIGENT TECHNOLOGY CO.,LIMITED 
 [SHENZHEN CREATIONBEST INTELLIGENT TECHNOLOGY CO.,LIMITED](http://www.createbest.com.cn/) 
 The core team was established in 2006.    
-It's a set of wireless communication field, embedded computer application system, industry intelligence and Internet of things equipment overall solution provider, committed to providing customers with the most valuable one-stop industry solutions.   
+It's a set of wireless communication field, embedded computer application system, industry intelligence and Internet of things equipment overall solution provider, committed to providing customers with the most valuable one-stop industry solutions.    
 The company always takes technology as the core, adheres to R & D investment and continuous innovation. CREATIONBEST always adhere to technological innovation, quality first, service first, create the best together!   
 
 ## Contributor contact information
