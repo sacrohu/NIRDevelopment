@@ -1,2 +1,0 @@
-# NIRDevelopment
-development for NIR
