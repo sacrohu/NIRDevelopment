@@ -2,6 +2,32 @@ import serial.tools.list_ports
 import numpy as np
 import json
 import sys
+import socket
+import time
+
+
+class Client(object):
+    def __init__(self):
+        self.index = 0
+
+    def connectTo(self, host, port):
+        self.conn = socket.socket()
+        self.conn.connect((host, port))
+        self.conn.setblocking(False)
+        print(time.time(), "connection is created", self.conn.getpeername())
+
+    def closeSocket(self):
+        self.conn.close()
+        print(time.time(), "connection is closed")
+
+    def sendSocket(self, command):
+        nsend = self.conn.send(command)
+        print(time.time(), "send", command, "to", self.conn.getpeername(), "bytes", nsend)
+        return nsend
+
+
+client2observer = Client()
+client2observer.connectTo("127.0.0.1", 8729)
 
 # detection NIR spectrum by AS7263
 try:
@@ -12,6 +38,13 @@ try:
         print("fail to open serial port")
         sys.exit()
     print("success to open serial port")
+    print("config AS7263 spectrum sensor")
+    ser.write("ATGAIN=2\r\n".encode("ascii"))  # send AT command to serial ASCII string
+    resultcmd = ser.readline().decode("ascii").replace("\n", "")  # read AT command result as ASCII string
+    print("config AS7263 GAIN=2:", resultcmd)
+    ser.write("ATINTTIME=40\r\n".encode("ascii"))  # send AT command to serial ASCII string
+    resultcmd = ser.readline().decode("ascii").replace("\n", "")  # read AT command result as ASCII string
+    print("config AS7263 INTTIME=40*2.8ms:", resultcmd)
 
     print("\nbegin to generate NIR dectection refence library")
     input("\nstart to detect the reference light ")
@@ -30,8 +63,8 @@ try:
             iloop = iloop + 1
     irvalue0 = np.mean(irvalues, axis=0)  # get the mean value of NIR datas
     print("the measurement result of the reference NIR " + str(iloop) + "times:\n\t" + str(irvalue0))
-    print("\nopen the nirdata file")
-    firdata = open("nirdata.txt", "wt")  # store measurement into the local data file
+    print("\nopen the nirdata library file")
+    firdata = open("NIRLibrary.txt", "wt")  # store measurement into the local data file
     np.set_printoptions(precision=2)     # display the data format 0.02
     measuredata, irname, irmeasurement = [], [], np.array([])
     mloop = 0
@@ -97,6 +130,10 @@ try:
         if np.sum(np.power(irvaluee, 2)) < 600:
             print("the measurement result of the library NIR: background light")
         else:
+
+            json_str = json.dumps(irvaluee.tolist())
+            print("the bytes", client2observer.sendSocket(json_str.encode('utf-8')), json_str)
+
             tmpirmeasurement = np.vstack([irmeasurement, np.around(np.array(irvaluee))])
             deResult = np.corrcoef(tmpirmeasurement)[mloop, :mloop]
             print("the NIR detection result of the unknown NIR object by the library NIR")
@@ -106,6 +143,8 @@ try:
         todo = input("\ndetect the unknown object by the library NIR(?/n): ")
 
     ser.close()
+    client2observer.closeSocket()
     print("stop serial port")
 except Exception as e:
     print("serial port unexception -", e)
+    client2observer.closeSocket()
